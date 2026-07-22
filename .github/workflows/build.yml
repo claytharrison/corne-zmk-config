@@ -9,6 +9,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     container:
       image: zmkfirmware/zmk-build-arm:stable
     strategy:
