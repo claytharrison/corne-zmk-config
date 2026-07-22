@@ -8,24 +8,4 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    container:
-      image: zmkfirmware/zmk-build-arm:stable
-    name: Build
-    strategy:
-      fail-fast: false
-      matrix:
-        corne_left:
-          shield: corne_left
-          board: nice_nano_v2
-        corne_right:
-          shield: corne_right
-          board: nice_nano_v2
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Build ${{ matrix.shield }}
-        run: |
-          echo "Building for board: ${{ matrix.board }}"
-          echo "Shield: ${{ matrix.shield }}"
+    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@main
