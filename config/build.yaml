@@ -1,0 +1,7 @@
+build_matrix:
+  corne_left:
+    shield: corne_left
+    board: nice_nano_v2
+  corne_right:
+    shield: corne_right
+    board: nice_nano_v2
