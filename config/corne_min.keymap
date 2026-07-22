@@ -22,18 +22,6 @@
             flavor = "tap-preferred";
             bindings = <&kp>, <&kp>;
         };
-
-        /* Mouse movement behavior */
-        mmv: mouse_move {
-            compatible = "zmk,behavior-mouse-move";
-            #binding-cells = <1>;
-        };
-
-        /* Mouse scroll behavior */
-        msc: mouse_scroll {
-            compatible = "zmk,behavior-mouse-scroll";
-            #binding-cells = <1>;
-        };
     };
 
     keymap {
