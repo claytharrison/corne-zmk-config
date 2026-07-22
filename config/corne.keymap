@@ -1,81 +1,71 @@
 /*
  * Corne Keymap for ZMK
- * A simple starting point - customize as needed
+ * 
+ * Features:
+ * - Homerow mods (Ctrl/Alt/Shift/GUI on ASDF JKL;)
+ * - LOWER (left thumb): numbers, BT control, arrows
+ * - RAISE (right thumb): numbers, symbols, volume
+ * - MOUSE (both thumbs): mouse movement, clicks, scroll
  */
 
 #include <behaviors.dtsi>
-#include <corne.dtsi>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
+#include <dt-bindings/zmk/mouse.h>
 
 / {
     keymap {
         compatible = "zmk,keymap";
 
+        /*
+         * LAYER 0: BASE with Homerow Mods
+         */
         layer0: base {
             display-name = "Base";
             bindings = <
-                /* Left hand - numbers row */
-                &kp GRAVE &kp N1 &kp N2 &kp N3 &kp N4 &kp N5
-                &kp TAB &kp Q &kp W &kp E &kp R &kp T
-                &kp CAPSLOCK &kp A &kp S &kp D &kp F &kp G
-                &kp LSHIFT &kp Z &kp X &kp C &kp V &kp B
-                &kp LCTRL &kp LALT &kp LGUI LOWER &kp SPACE &kp BSPC
-
-                /* Right hand - numbers row */
-                &kp N6 &kp N7 &kp N8 &kp N9 &kp N0 &kp MINUS
-                &kp Y &kp U &kp I &kp O &kp P &kp LBKT
-                &kp H &kp J &kp K &kp L &kp SEMI &kp QUOTE
-                &kp N &kp M &kp COMMA &kp DOT &kp SLASH &kp RSFT
-                &kp RET &kp ALTGR RAISE &kp BSPC &kp SPACE &kp RCTRL
-
-                /* Thumb clusters */
-                &kp ESC &kp ENT
-                &kp ENT &kp ESC
+                &kp TAB   &kp Q   &kp W   &kp E   &kp R   &kp T     &kp Y     &kp U     &kp I     &kp O   &kp P   &kp BSPC
+                &hm LC A  &hm LA S  &hm LS D  &hm LG F  &kp G   &kp H     &kp J     &kp K     &kp L     &hm RC SEMI &hm RA QUOTE &hm RS SLASH
+                &kp ESC   &kp Z   &kp X   &kp C   &kp V   &kp B     &kp N     &kp M     &kp COMMA &kp DOT &kp SLASH &kp RSFT
+                          &kp LGUI  &mo LOWER &kp SPACE           &kp RET   &mo RAISE &kp RALT
             >;
         };
 
+        /*
+         * LAYER 1: LOWER (left thumb hold)
+         */
         lower: lower {
             display-name = "Lower";
             bindings = <
-                /* Left hand */
-                &kp TILDE &kp EXCL &kp AT &kp HASH &kp DOLLAR &kp PERCENT
-                &kp F1 &kp F2 &kp F3 &kp F4 &kp F5 &kp F6
-                &kp &none &kp LEFT &kp UP &kp DOWN &kp RIGHT
-                &kp &none &kp &none &kp &none &kp &none &kp &none
-                &kp &none &kp &none &kp &none &trans &kp &none &kp DEL
-
-                /* Right hand */
-                &kp CIRC &kp AMPR &kp ASTR &kp LPAR &kp RPAR &kp EQL
-                &kp F7 &kp F8 &kp F9 &kp F10 &kp F11 &kp F12
-                &kp PG_UP &kp HOME &kp PG_DN &kp END &kp &none &kp &none
-                &kp &none &kp &none &kp &none &kp &none &kp &none
-                &kp &none &trans &kp &none &kp &none &kp &none &kp &none
-
-                /* Thumb clusters */
-                &kp &none &kp &none
-                &kp &none &kp &none
+                &kp TAB    &kp N1   &kp N2   &kp N3   &kp N4   &kp N5     &kp N6    &kp N7    &kp N8    &kp N9    &kp N0    &kp BSPC
+                &bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4 &kp LEFT  &kp DOWN  &kp UP    &kp RIGHT &trans    &trans
+                &kp ESC    &trans   &trans   &trans   &trans   &trans     &trans    &trans    &trans    &trans    &trans    &trans
+                           &kp LGUI  &trans   &kp SPACE           &kp RET   &mo MOUSE &kp RALT
             >;
         };
 
+        /*
+         * LAYER 2: RAISE (right thumb hold)
+         */
         raise: raise {
             display-name = "Raise";
             bindings = <
-                /* Left hand */
-                &kp TILDE &kp EXCL &kp AT &kp HASH &kp DOLLAR &kp PERCENT
-                &kp F1 &kp F2 &kp F3 &kp F4 &kp F5 &kp F6
-                &kp &none &kp LEFT &kp UP &kp DOWN &kp RIGHT
-                &kp &none &kp &none &kp &none &kp &none &kp &none
-                &kp &none &kp &none &kp &none &trans &kp &none &kp DEL
+                &kp TAB    &kp N1   &kp N2   &kp N3   &kp N4   &kp N5     &kp N6    &kp N7    &kp N8    &kp N9    &kp N0    &kp BSPC
+                &trans     &trans   &trans   &trans   &trans   &trans     &kp MINUS &kp EQUAL &kp LBKT  &kp RBKT  &kp BSLH  &kp GRAVE
+                &trans     &trans   &trans   &trans   &trans   &trans     &kp UNDER &kp PLUS  &kp LBRC  &kp RBRC  &kp PIPE  &kp TILDE
+                           &kp C_VOL_DN &trans &kp SPACE           &kp RET   &trans    &kp C_VOL_UP
+            >;
+        };
 
-                /* Right hand */
-                &kp CIRC &kp AMPR &kp ASTR &kp LPAR &kp RPAR &kp EQL
-                &kp F7 &kp F8 &kp F9 &kp F10 &kp F11 &kp F12
-                &kp PG_UP &kp HOME &kp PG_DN &kp END &kp &none &kp &none
-                &kp &none &kp &none &kp &none &kp &none &kp &none
-                &kp &none &trans &kp &none &kp &none &kp &none &kp &none
-
-                /* Thumb clusters */
-                &kp &none &kp &none
-                &kp &none &kp &none
+        /*
+         * LAYER 3: MOUSE (LOWER + RAISE together)
+         */
+        mouse: mouse {
+            display-name = "Mouse";
+            bindings = <
+                &kp TAB    &mkp LCLK &mkp RCLK &mkp MCLK &kp N4   &kp N5     &kp N6    &kp N7    &kp N8    &kp N9    &kp N0    &kp BSPC
+                &trans     &trans    &trans    &trans    &trans   &trans     &mmv LEFT &mmv DOWN &mmv UP   &mmv RIGHT &trans    &trans
+                &trans     &trans    &trans    &trans    &trans   &trans     &msc UP   &msc DOWN
+                           &kp LGUI   &trans    &kp SPACE           &kp RET    &trans    &kp RALT
             >;
         };
     };
