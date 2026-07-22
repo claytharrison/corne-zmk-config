@@ -1,5 +1,5 @@
 include:
-  - board: nice_nano_v2
+  - board: nice_nano@2.0.0/nrf52840/zmk
     shield: corne_left
-  - board: nice_nano_v2
+  - board: nice_nano@2.0.0/nrf52840/zmk
     shield: corne_right
