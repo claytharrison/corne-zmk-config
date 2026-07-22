@@ -13,7 +13,8 @@ No reset button on this board. To reach the bootloader: hold both middle thumb
 keys, then press the outermost key on row 3 — left end for the left half, right
 end for the right half.
 
-Flash **both** halves after any keymap change.
+A keymap-only change needs the left half flashed; version or `.conf` changes
+need both.
 
 **[GUIDE.md](GUIDE.md)** covers the hardware details, bootloader access, version
 pinning constraints, recovery, and troubleshooting.

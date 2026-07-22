@@ -37,8 +37,17 @@ that means you forgot to push, or CI hasn't finished.
 ./flash.sh --no-backup         # skip the backup read
 ```
 
-Flash **both halves** whenever the keymap changes. Mismatched firmware between
-halves causes confusing pairing and dropped-key behaviour.
+How much you need to flash depends on what changed:
+
+| Changed | Flash |
+|---|---|
+| Keymap bindings only | Left (central) is enough |
+| ZMK version, board definition, `.conf` | **Both halves** |
+
+Only the central half processes the keymap — the peripheral just reports which
+key positions were pressed and lets the central decide what they mean. The
+right half carries a copy of the keymap it never consults. Flashing both anyway
+is good hygiene and keeps the backups in step.
 
 ### Doing it by hand
 
@@ -54,7 +63,9 @@ eject it, and you do not need to unmount first.
 
 ## Getting into the bootloader
 
-There is no reset button on this PCB. In order of convenience:
+There is no reset button on this PCB. Note that **unplugging and replugging does
+not enter the bootloader** — a fresh power-up just boots the firmware. In order
+of convenience:
 
 1. **The bootloader keys** (added to the mouse layer, one per half):
 
