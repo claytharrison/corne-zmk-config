@@ -2,12 +2,20 @@ manifest:
   remotes:
     - name: zmkfirmware
       url-base: https://github.com/zmkfirmware
+    - name: kenta-sakai-0
+      url-base: https://github.com/kenta-sakai-0
   projects:
+    # ZMK v0.3 (Zephyr 3.5 era). The corne_min board definition uses the
+    # pre-Zephyr-4.1 board layout, so this cannot move to ZMK main as-is.
     - name: zmk
       remote: zmkfirmware
-      # Pinned to a known-good commit. Bump deliberately; tracking `main`
-      # broke this config when ZMK's Zephyr 4.1 migration renamed boards.
-      revision: f84ef436cd8e88f9d1580a9b86bab2fae8d349c6
+      revision: v0.3
       import: app/west.yml
+    # Board definition for the Corne Min (nRF52840-corne-min). Third-party
+    # module -- pinned to a specific commit; bump deliberately.
+    - name: zmk-config
+      remote: kenta-sakai-0
+      revision: 4e78203b46a10e28a7f990f57749006f030fb3ff
+      path: modules/corne-min
   self:
     path: config
