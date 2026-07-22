@@ -7,5 +7,106 @@ on:
   workflow_dispatch:
 
 jobs:
+  matrix:
+    runs-on: ubuntu-22.04
+    name: Fetch Build Keyboards
+    outputs:
+      build_matrix: ${{ steps.fetch.outputs.build_matrix }}
+      has_valid_build_matrix: ${{ steps.fetch.outputs.has_valid_build_matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Fetch Build Matrix
+        id: fetch
+        run: |
+          matrix_content=$(yq -oj -I0 'build.yaml')
+          
+          if [ -z "$matrix_content" ] || [ "$matrix_content" = "null" ]; then
+            echo "::notice file=build.yaml,title=Empty build matrix file::To add a keyboard to the build, see https://zmk.dev/docs/user-setup#add-a-keyboard."
+            echo "has_valid_build_matrix=false" >> $GITHUB_OUTPUT
+          else
+            # Escape the JSON for GitHub Actions output
+            echo "build_matrix<<EOF" >> $GITHUB_OUTPUT
+            echo "$matrix_content" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+            echo "has_valid_build_matrix=true" >> $GITHUB_OUTPUT
+            echo "$matrix_content"
+          fi
+
   build:
-    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@main
+    runs-on: ubuntu-latest
+    if: needs.matrix.outputs.has_valid_build_matrix == 'true'
+    container:
+      image: zmkfirmware/zmk-build-arm:stable
+    needs: matrix
+    name: Build
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.matrix.outputs.build_matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Create build directory
+        run: |
+          echo "build_dir=$(mktemp -d)" >> $GITHUB_ENV
+
+      - name: Prepare variables
+        env:
+          board: ${{ matrix.board }}
+          shield: ${{ matrix.shield }}
+        run: |
+          if [ -e zephyr/module.yml ]; then
+            export zmk_load_arg=" -DZMK_EXTRA_MODULES='${GITHUB_WORKSPACE}'"
+            new_tmp_dir="${TMPDIR:-/tmp}/zmk-config"
+            mkdir -p "${new_tmp_dir}"
+            echo "base_dir=${new_tmp_dir}" >> $GITHUB_ENV
+          else
+            echo "base_dir=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
+          fi
+          echo "extra_cmake_args=${shield:+-DSHIELD=\"$shield\"}${zmk_load_arg}" >> $GITHUB_ENV
+          echo "display_name=${shield:+$shield - }${board}" >> $GITHUB_ENV
+          echo "artifact_name=${artifact_name:-${shield:+$shield-}${board//\//_}-zmk}" >> $GITHUB_ENV
+
+      - name: Copy config files
+        run: |
+          if [ "${{ env.base_dir }}" != "${GITHUB_WORKSPACE}" ]; then
+            mkdir "${{ env.base_dir }}/config"
+            cp -R config/* "${{ env.base_dir }}/config/"
+          fi
+
+      - name: West Init
+        working-directory: ${{ env.base_dir }}
+        run: west init -l "${{ env.base_dir }}/config"
+
+      - name: West Update
+        working-directory: ${{ env.base_dir }}
+        run: west update --fetch-opt=--filter=tree:0
+
+      - name: West Zephyr export
+        working-directory: ${{ env.base_dir }}
+        run: west zephyr-export
+
+      - name: West Build (${{ env.display_name }})
+        working-directory: ${{ env.base_dir }}
+        run: west build -s zmk/app -d "${{ env.build_dir }}" -b "${{ matrix.board }}" -- -DZMK_CONFIG=${{ env.base_dir }}/config ${{ env.extra_cmake_args }}
+
+      - name: Rename firmware
+        run: |
+          cp "${{ env.build_dir }}/zephyr/zmk.uf2" "${{ env.artifact_name }}.uf2" || \
+          cp "${{ env.build_dir }}/zephyr/zmk.bin" "${{ env.artifact_name }}.bin"
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.artifact_name }}
+          path: ${{ env.artifact_name }}.*
+
+  merge:
+    runs-on: ubuntu-latest
+    needs: build
+    name: Merge Output Artifacts
+    steps:
+      - name: Merge
+        run: echo "Build complete!"
