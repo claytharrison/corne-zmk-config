@@ -3,16 +3,79 @@ on:
   push:
     branches:
       - main
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: zmkfirmware/zmk-build-arm:stable
     strategy:
+      fail-fast: false
       matrix:
-        include:
-          - shield: corne_left
-            board: nice_nano_v2
-          - shield: corne_right
-            board: nice_nano_v2
+        corne_left:
+          shield: corne_left
+          board: nice_nano_v2
+        corne_right:
+          shield: corne_right
+          board: nice_nano_v2
+    name: Build ${{ matrix.shield }}
     steps:
-      - run: echo "Building ${{ matrix.shield }} with ${{ matrix.board }}"
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Create build directory
+        run: |
+          echo "build_dir=$(mktemp -d)" >> $GITHUB_ENV
+
+      - name: Prepare variables
+        env:
+          board: ${{ matrix.board }}
+          shield: ${{ matrix.shield }}
+        run: |
+          if [ -e zephyr/module.yml ]; then
+            export zmk_load_arg=" -DZMK_EXTRA_MODULES='${GITHUB_WORKSPACE}'"
+            new_tmp_dir="${TMPDIR:-/tmp}/zmk-config"
+            mkdir -p "${new_tmp_dir}"
+            echo "base_dir=${new_tmp_dir}" >> $GITHUB_ENV
+          else
+            echo "base_dir=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
+          fi
+          echo "extra_cmake_args=${shield:+-DSHIELD=\"$shield\"}${zmk_load_arg}" >> $GITHUB_ENV
+          echo "display_name=${shield:+$shield - }${board}" >> $GITHUB_ENV
+          echo "artifact_name=${shield:+$shield-}${board//\//_}-zmk" >> $GITHUB_ENV
+
+      - name: Copy config files
+        run: |
+          if [ "${{ env.base_dir }}" != "${GITHUB_WORKSPACE}" ]; then
+            mkdir "${{ env.base_dir }}/config"
+            cp -R config/* "${{ env.base_dir }}/config/"
+          fi
+
+      - name: West Init
+        working-directory: ${{ env.base_dir }}
+        run: west init -l "${{ env.base_dir }}/config"
+
+      - name: West Update
+        working-directory: ${{ env.base_dir }}
+        run: west update --fetch-opt=--filter=tree:0
+
+      - name: West Zephyr export
+        working-directory: ${{ env.base_dir }}
+        run: west zephyr-export
+
+      - name: West Build (${{ env.display_name }})
+        working-directory: ${{ env.base_dir }}
+        run: west build -s zmk/app -d "${{ env.build_dir }}" -b "${{ matrix.board }}" -- -DZMK_CONFIG=${{ env.base_dir }}/config ${{ env.extra_cmake_args }}
+
+      - name: Rename firmware
+        run: |
+          cp "${{ env.build_dir }}/zephyr/zmk.uf2" "${{ env.artifact_name }}.uf2" || \
+          cp "${{ env.build_dir }}/zephyr/zmk.bin" "${{ env.artifact_name }}.bin"
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.artifact_name }}
+          path: ${{ env.artifact_name }}.*
