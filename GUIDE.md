@@ -121,6 +121,45 @@ Mouse buttons are `&mkp`, not `&kp`, and require `CONFIG_ZMK_POINTING=y` in
 `config/corne_min.conf`. On v0.3 this Kconfig lives in `app/src/pointing/Kconfig`;
 `ZMK_MOUSE` is its deprecated alias.
 
+## Bluetooth
+
+ZMK keeps five independent profiles. On the Lower layer, row 2 is
+`BT_CLR` followed by `BT_SEL 0`–`BT_SEL 4`.
+
+**Output routing gotcha:** whenever USB is connected, ZMK sends keystrokes over
+USB no matter what the BLE connection is doing. Unplug the cable before
+concluding Bluetooth is broken.
+
+### Pairing fails, or connects then immediately drops
+
+Almost always a **half-broken bond**: the host has a cached entry while the
+keyboard has none (or vice versa). The link never gets encrypted, so the
+keyboard rejects HID reads. Signature in `journalctl -u bluetooth`:
+
+```
+hog-lib.c:info_read_cb() HID Information read failed: ... unlikely error
+hog-lib.c:report_reference_cb() Read Report Reference descriptor failed
+```
+
+Confirm with `bluetoothctl info <mac>` — the tell is `Paired: no` alongside
+`Trusted: yes`.
+
+Clear **both** sides; doing one recreates the same asymmetry:
+
+```bash
+bluetoothctl remove D2:60:55:97:8A:94        # host side
+# keyboard side: hold LOWER, press row 2 leftmost (BT_CLR)
+bluetoothctl --timeout 25 pair D2:60:55:97:8A:94
+bluetoothctl trust D2:60:55:97:8A:94         # so it auto-reconnects
+```
+
+`BT_CLR` only clears the *selected* profile — if several are stale, select and
+clear each one. Verify the host built the HID devices:
+
+```bash
+grep -A5 -i corne /proc/bus/input/devices | grep -E "Name|Handlers"
+```
+
 ## When something breaks
 
 | Symptom | Cause |
@@ -131,6 +170,8 @@ Mouse buttons are `&mkp`, not `&kp`, and require `CONFIG_ZMK_POINTING=y` in
 | `Could not find Zephyr` package | Missing `west zephyr-export` (only affects hand-rolled workflows) |
 | One half dead / halves won't pair | Mismatched firmware — reflash both |
 | Bootloader key does nothing | Halves unpaired, so the reset can't be relayed → short `RST`/`GND` |
+| BT connects but types nothing | USB plugged in — ZMK routes output to USB |
+| BT pairing fails / drops instantly | Stale bond on one side → [Bluetooth](#bluetooth) |
 
 ### Recovery
 
