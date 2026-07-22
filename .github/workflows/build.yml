@@ -36,7 +36,8 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    if: needs.matrix.outputs.has_valid_build_matrix == 'true'
+    # if: needs.matrix.outputs.has_valid_build_matrix == 'true'
+    if: always() && needs.matrix.result == 'success'
     container:
       image: zmkfirmware/zmk-build-arm:stable
     needs: matrix
