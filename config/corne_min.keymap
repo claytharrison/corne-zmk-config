@@ -22,6 +22,18 @@
             flavor = "tap-preferred";
             bindings = <&kp>, <&kp>;
         };
+
+        /* Mouse movement behavior */
+        mmv: mouse_move {
+            compatible = "zmk,behavior-mouse-move";
+            #binding-cells = <2>;
+        };
+
+        /* Mouse scroll behavior */
+        msc: mouse_scroll {
+            compatible = "zmk,behavior-mouse-scroll";
+            #binding-cells = <1>;
+        };
     };
 
     keymap {
@@ -65,8 +77,8 @@
             display-name = "Mouse";
             bindings = <
                 &kp ESC    &mkp LCLK &mkp RCLK &mkp MCLK &kp N4  &kp N5    &kp N6    &kp N7    &kp N8    &kp N9    &kp N0    &kp BSPC
-                &trans     &trans   &trans   &trans   &trans   &trans     &mmv -400 0 &mmv 0 400 &mmv 0 -400 &mmv 400 0 &trans    &trans
-                &bootloader &trans  &trans   &trans   &trans   &trans     &msc 1 &msc -1 &trans    &trans    &trans    &bootloader
+                &trans     &trans   &trans   &trans   &trans   &trans     &mmv <(-400)> <0> &mmv <0> <(400)> &mmv <0> <(-400)> &mmv <(400)> <0> &trans    &trans
+                &bootloader &trans  &trans   &trans   &trans   &trans     &msc <(1)> &msc <(-1)> &trans    &trans    &trans    &bootloader
                            &kp LGUI &trans   &kp SPACE                   &kp RET   &trans    &kp RALT
             >;
         };
