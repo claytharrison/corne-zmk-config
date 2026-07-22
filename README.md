@@ -1,67 +1,31 @@
-# ZMK Configuration for Corne Keyboard
+# ZMK config — Corne Min
 
-## Quick Start
-
-### 1. Build Firmware via GitHub Actions
-- Push this config to a GitHub repository
-- GitHub Actions will automatically build the firmware
-- Download the `.uf2` files from the Actions artifacts
-
-### 2. Flash to Corne
-1. Double-press the reset button on each half
-2. The keyboard will appear as a USB drive
-3. Copy the `.uf2` file to each half:
-   - `corne_left.uf2` → left half
-   - `corne_right.uf2` → right half
-
-## Customizing Your Keymap
-
-Edit `config/corne.keymap` to change key bindings.
-
-### Key Codes Reference
-- `&kp A` - Key press (letter A)
-- `&kp N1` - Number 1
-- `&kp SPACE` - Spacebar
-- `&kp BSPC` - Backspace
-- `&kp RET` - Return/Enter
-- `&kp TAB` - Tab
-- `&kp ESC` - Escape
-- `&kp LSHIFT`, `&kp RSHIFT` - Shift keys
-- `&kp LCTRL`, `&kp RCTRL` - Control keys
-- `&kp LALT`, `&kp RALT` - Alt keys
-- `&kp LGUI`, `&kp RGUI` - GUI/Command keys
-- `&kp LEFT`, `&kp UP`, `&kp DOWN`, `&kp RIGHT` - Arrow keys
-- `&kp F1` through `&kp F12` - Function keys
-- `&trans` - Transparent (passes to lower layer)
-- `&none` - No action (blocks lower layer)
-
-### Layers
-- **Base**: Default layer
-- **Lower**: Activated by LOWER key on left thumb
-- **Raise**: Activated by RAISE key on right thumb
-
-## Local Build (Optional)
+Wireless split, 42 keys, integrated nRF52840. **Not a nice!nano** — see
+[GUIDE.md](GUIDE.md) before changing the board target.
 
 ```bash
-# Install dependencies
-sudo apt install -y git wget flex bison gperf wget \
-    ninja-build xz-utils zip cmake libusb-1.0-0-dev \
-    python3-pip python3-setuptools python3-dev
-
-# Clone ZMK
-git clone https://github.com/zmkfirmware/zmk.git ~/zmk
-cd ~/zmk
-
-# Set up workspace
-west init ~/zmk-config
-west update
-
-# Build
-west build -b corne_left ~/zmk-config/config
-west build -b corne_right ~/zmk-config/config
+$EDITOR config/corne_min.keymap
+git commit -am "..." && git push     # Actions builds both halves
+./flash.sh                           # flashes each half as you bootloader it
 ```
 
-## Resources
-- [ZMK Documentation](https://zmk.dev/docs)
-- [ZMK Keymap Behaviors](https://zmk.dev/docs/keymaps)
-- [Corne Keyboard Info](https://github.com/foostan/crkbd)
+No reset button on this board. To reach the bootloader: hold both middle thumb
+keys, then press the outermost key on row 3 — left end for the left half, right
+end for the right half.
+
+Flash **both** halves after any keymap change.
+
+**[GUIDE.md](GUIDE.md)** covers the hardware details, bootloader access, version
+pinning constraints, recovery, and troubleshooting.
+
+## Layers
+
+| Layer | Reached by | Contents |
+|---|---|---|
+| Base | — | Alphas, home-row mods on `ASDF`/`JKL;` |
+| Lower | Left middle thumb | Numbers, Bluetooth, arrows |
+| Raise | Right middle thumb | Numbers, symbols, volume |
+| Mouse | Lower + right middle thumb | Mouse buttons, paging, `&bootloader` |
+
+Home-row mods: tap for the letter, hold for the modifier (`hm`, tap-preferred,
+200 ms). Adjust the timing at the top of the keymap if it misfires.
