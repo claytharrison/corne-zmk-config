@@ -5,7 +5,9 @@ manifest:
   projects:
     - name: zmk
       remote: zmkfirmware
-      revision: main
+      # Pinned to a known-good commit. Bump deliberately; tracking `main`
+      # broke this config when ZMK's Zephyr 4.1 migration renamed boards.
+      revision: f84ef436cd8e88f9d1580a9b86bab2fae8d349c6
       import: app/west.yml
   self:
     path: config
