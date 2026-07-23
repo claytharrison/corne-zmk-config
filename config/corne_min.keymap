@@ -43,8 +43,8 @@
             display-name = "Lower";
             bindings = <
                 &kp ESC    &kp N1   &kp N2   &kp N3   &kp N4   &kp N5     &kp N6    &kp N7    &kp N8    &kp N9    &kp N0    &kp BSPC
-                &bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4 &kp LEFT  &kp DOWN  &kp UP    &kp RIGHT &trans    &trans
-                &kp TAB    &trans   &trans   &trans   &trans   &trans     &trans    &trans    &trans    &trans    &trans    &trans
+                &trans     &hm LCTRL A &hm LALT S &hm LSHFT D &hm LGUI F &trans   &kp LEFT  &hm RGUI DOWN &hm RSHFT UP &hm RALT RIGHT &trans &trans
+                &trans     &bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &trans    &trans    &trans    &trans    &trans    &trans
                            &kp LGUI &trans   &kp SPACE                   &kp RET   &mo 3     &kp RALT
             >;
         };
@@ -54,8 +54,8 @@
             display-name = "Raise";
             bindings = <
                 &kp ESC    &kp N1   &kp N2   &kp N3   &kp N4   &kp N5     &kp N6    &kp N7    &kp N8    &kp N9    &kp N0    &kp BSPC
-                &trans     &trans   &trans   &trans   &trans   &trans     &kp MINUS &kp EQUAL &kp LBKT  &kp RBKT  &kp BSLH  &kp GRAVE
-                &trans     &trans   &trans   &trans   &trans   &trans     &kp UNDER &kp PLUS  &kp LBRC  &kp RBRC  &kp PIPE  &kp trans
+                &trans     &hm LCTRL LG(N1) &hm LALT LG(N2) &hm LSHFT LG(N3) &hm LGUI LG(N4) &trans   &kp MINUS &hm RGUI EQUAL &hm RSHFT LBKT &hm RALT RBKT &hm RCTRL BSLH &kp GRAVE
+                &trans     &trans   &trans   &trans   &trans   &trans     &kp UNDER &kp PLUS  &kp LBRC  &kp RBRC  &kp PIPE  &trans
                            &kp C_VOL_DN &mo 3 &kp SPACE                   &kp RET   &kp TILDE    &kp C_VOL_UP
             >;
         };
